@@ -14,7 +14,6 @@ metadata:
 requires:
   bins:
     - python3
-    - curl
 ---
 
 # 建必优登录 Skill
@@ -42,7 +41,7 @@ requires:
 用下面的工具查看用户之前的登录状态：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-login/scripts/check_token.py | python3
+python3 ~/.openclaw/workspace/skills/jianyouyou-login/scripts/check_token.py
 ```
 
 - 输出里有 `TOKEN_VALID` → 告诉用户"建必优登录还有效，不需要重新登录"，**结束**
@@ -53,7 +52,7 @@ curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-log
 用下面的工具帮用户打开建必优的登录页：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-login/scripts/login.py | python3
+python3 ~/.openclaw/workspace/skills/jianyouyou-login/scripts/login.py
 ```
 
 完成后，从输出里找到 `LOGIN_URL:` 开头的那一行，得到登录链接。
@@ -78,7 +77,7 @@ curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-log
 如果用户需要确认登录状态，使用：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-login/scripts/verify_token.py | python3
+python3 ~/.openclaw/workspace/skills/jianyouyou-login/scripts/verify_token.py
 ```
 
 - 输出里有 `VERIFY_SUCCESS` → 告诉用户登录的账号名和所在组织
