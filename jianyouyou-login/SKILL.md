@@ -1,9 +1,9 @@
 ---
 name: jianyouyou-login
 description: >
-  登录建必优（建筑工程质量管理平台）并获取认证 Token。
-  Use when: 用户说"登录建必优"、"建必优登录"、"获取建必优token"、"建必优授权"。
-  NOT for: 其他平台的登录，或已有有效 token 的情况。
+  帮助用户登录建必优平台（建筑工程质量管理系统）。
+  Use when: 用户说"登录建必优"、"我要用建必优"、"帮我进建必优"、"建必优进不去"、"建必优登录一下"。
+  NOT for: 其他系统的登录，或用户已经登录过且账号还有效的情况。
 version: 1.2.0
 author: King
 user-invocable: true
@@ -19,107 +19,76 @@ requires:
 
 # 建必优登录 Skill
 
-## Description
+## 这个技能是做什么的
 
-自动完成建必优平台登录授权流程：从 GitHub 拉取最新脚本 → 启动本地回调服务 → 打开登录页 → 等待用户完成账密登录 → 接收回调 Token → 保存到本地供后续调用使用。
+帮用户完成建必优平台的登录。整个过程是：先检查用户之前有没有登录过、账号还有没有效 → 如果没有就帮用户打开登录页面 → 用户在浏览器里输入账号密码完成登录 → 把登录凭证保存好，后续操作建必优时直接用。
 
-脚本托管在 GitHub，每次执行自动拉取最新版本，无需重新安装 Skill。
+## 什么时候用这个技能
 
-## When to Use
+- 用户说"登录建必优"、"我要用建必优"
+- 用户说"帮我进建必优"、"建必优进不去"
+- 用户说"我要操作建必优里的数据"（先检查登录状态，没登录就帮他登录）
+- 发现用户之前的登录已经过期了
 
-- 用户说"登录建必优"
-- 用户说"建必优登录"、"建必优授权"
-- 用户说"获取建必优 token"
-- 调用建必优 API 前发现 token 不存在或已过期
-- 用户说"我要操作建必优"（先检查 token，若无则触发登录）
+## 什么时候不用
 
-## When NOT to Use
+- 用户已经登录过且还没过期（Step 1 检查有效就直接结束）
+- 用户明确说不需要登录
 
-- Token 文件已存在且未过期（先用 Step 1 检查）
-- 用户明确说使用已有凭据
-- 非建必优平台的登录场景
+## 执行步骤
 
-## GitHub 脚本基础地址
+### Step 1：检查是否已经登录过
 
-```
-https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-login/scripts/
-```
-
-## Workflow
-
-### Step 1：检查已有 Token
-
-从 GitHub 拉取 check_token.py 并执行：
+运行下面的命令，看用户之前的登录还有没有效：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-login/scripts/check_token.py | python3
 ```
 
-- 若输出包含 `TOKEN_VALID`，告知用户"建必优 token 有效，无需重新登录"，**结束流程**
-- 若输出包含 `TOKEN_EXPIRED` 或 `TOKEN_NOT_FOUND`，继续 Step 2
+- 输出里有 `TOKEN_VALID` → 告诉用户"建必优登录还有效，不需要重新登录"，**结束**
+- 输出里有 `TOKEN_EXPIRED` 或 `TOKEN_NOT_FOUND` → 继续 Step 2
 
-### Step 2：启动本地回调服务并打开登录页
+### Step 2：打开建必优登录页面
 
-从 GitHub 拉取 login.py 并执行：
+运行下面的命令，帮用户打开建必优的登录页：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-login/scripts/login.py | python3
 ```
 
-脚本会自动：
-1. 在本地 `127.0.0.1:19877` 启动临时 HTTP 回调服务
-2. 尝试用系统浏览器打开 `http://192.168.2.99:8080/ai` 登录页
-3. 等待用户完成账密登录（最长 3 分钟）
+命令运行后，从输出里找到 `LOGIN_URL:` 开头的那一行，得到登录链接。
 
-**重要：** 从脚本输出中提取 `LOGIN_URL:` 开头的那一行，得到完整登录链接。
-**不要尝试自己访问该链接**——它是内网地址，只有用户本地浏览器才能打开。
-无论浏览器是否自动弹出，都必须把登录链接直接发给用户，告知：
-"请在你的浏览器中打开以下链接完成建必优登录：\n👉 {LOGIN_URL}"
+**注意：这个链接是内网地址，不要自己去访问它。** 要把这个链接发给用户，让用户自己在浏览器里打开。
 
-### Step 3：等待回调并保存 Token
+告诉用户：
+"请在你的浏览器里打开这个链接，然后输入账号密码完成建必优登录：
+👉 {LOGIN_URL}
+登录完成后会自动帮你保存，稍等一下就好。"
 
-脚本执行完毕后根据输出判断：
+### Step 3：等登录完成
 
-- 若输出包含 `LOGIN_SUCCESS`：
-  - 告知用户"✅ 建必优登录成功，Token 已保存"
-  - 从输出中提取 `TOKEN_EXPIRES_AT` 告知有效期
+等命令运行结束，根据输出结果告诉用户：
 
-- 若输出包含 `LOGIN_TIMEOUT`：
-  - 告知用户"⏰ 登录超时（3分钟内未完成），请重试"
+- 输出里有 `LOGIN_SUCCESS` → 告诉用户"✅ 建必优登录成功，已保存好了"，并从 `TOKEN_EXPIRES_AT` 里告知有效期
+- 输出里有 `LOGIN_TIMEOUT` → 告诉用户"⏰ 等了3分钟没有完成登录，需要重新试一下"
+- 输出里有 `LOGIN_FAILED` → 把错误原因告诉用户
 
-- 若输出包含 `LOGIN_FAILED`：
-  - 从输出中提取错误原因告知用户
+### Step 4：验证一下（可选）
 
-### Step 4：验证可用性（可选）
-
-从 GitHub 拉取 verify_token.py 并执行：
+如果用户想确认登录是否真的成功了，运行：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-login/scripts/verify_token.py | python3
 ```
 
-- 若输出包含 `VERIFY_SUCCESS`，告知用户登录用户名和所属组织
-- 若输出包含 `VERIFY_FAILED`，告知用户错误原因
+- 输出里有 `VERIFY_SUCCESS` → 告诉用户登录的账号名和所在组织
+- 输出里有 `VERIFY_FAILED` → 告诉用户出了什么问题
 
-## Token 存储位置
+## 登录信息保存在哪里
 
-Token 保存在：`~/.openclaw/workspace/.jianyouyou_credentials.json`
-
-```json
-{
-  "token": "eyJhbGci...",
-  "token_type": "Bearer",
-  "expires_at": "2026-04-01T10:00:00",
-  "user_info": {
-    "username": "xxx",
-    "real_name": "xxx"
-  }
-}
-```
+保存在用户电脑的这个位置：`~/.openclaw/workspace/.jianyouyou_credentials.json`
 
 ## 注意事项
 
-- 脚本每次从 GitHub 实时拉取，GitHub 上更新脚本后立即生效，无需重装 Skill
-- 回调端口 `19877`，若被占用脚本自动尝试 `19878`、`19879`
-- Token 有效期 8 小时，过期后重新执行此 Skill 登录
-- 网络需能访问 `github.com` 和 `192.168.2.17:8080`
+- 登录有效期是 8 小时，过期了重新走一遍这个流程就好
+- 登录页地址是内网的 `192.168.2.99:8080`，只有在公司网络或连了公司 VPN 才能访问
