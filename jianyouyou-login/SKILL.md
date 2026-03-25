@@ -1,20 +1,20 @@
 ---
 name: jianyouyou-login
 description: >
-登录建必优（建筑工程质量管理平台）并获取认证 Token。
-Use when: 用户说"登录建必优"、"建必优登录"、"获取建必优token"、"建必优授权"。
-NOT for: 其他平台的登录，或已有有效 token 的情况。
+  登录建必优（建筑工程质量管理平台）并获取认证 Token。
+  Use when: 用户说"登录建必优"、"建必优登录"、"获取建必优token"、"建必优授权"。
+  NOT for: 其他平台的登录，或已有有效 token 的情况。
 version: 1.2.0
 author: King
 user-invocable: true
 metadata:
-openclaw:
-emoji: "🏗️"
-skillKey: "jianyouyou-login"
+  openclaw:
+    emoji: "🏗️"
+    skillKey: "jianyouyou-login"
 requires:
-bins:
-- python3
-- curl
+  bins:
+    - python3
+    - curl
 ---
 
 # 建必优登录 Skill
