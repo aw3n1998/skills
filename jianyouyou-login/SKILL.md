@@ -1,5 +1,5 @@
 ---
-name: jianyouyou-login
+name: jianbiyou-login
 description: >
   登录建必优（建筑工程质量管理平台）并获取认证 Token。
   Use when: 用户说"登录建必优"、"建必优登录"、"获取建必优token"、"建必优授权"。
@@ -10,7 +10,7 @@ user-invocable: true
 metadata:
   openclaw:
     emoji: "🏗️"
-    skillKey: "jianyouyou-login"
+    skillKey: "jianbiyou-login"
 requires:
   bins:
     - python3
@@ -42,7 +42,7 @@ requires:
 ## GitHub 脚本基础地址
 
 ```
-https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-login/scripts/
+https://raw.githubusercontent.com/aw3n1998/skills/main/jianbiyou-login/scripts/
 ```
 
 ## Workflow
@@ -52,7 +52,7 @@ https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-login/scripts/
 从 GitHub 拉取 check_token.py 并执行：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-login/scripts/check_token.py | python3
+curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianbiyou-login/scripts/check_token.py | python3
 ```
 
 - 若输出包含 `TOKEN_VALID`，告知用户"建必优 token 有效，无需重新登录"，**结束流程**
@@ -63,7 +63,7 @@ curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-log
 从 GitHub 拉取 login.py 并执行：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-login/scripts/login.py | python3
+curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianbiyou-login/scripts/login.py | python3
 ```
 
 脚本会自动：
@@ -95,7 +95,7 @@ curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-log
 从 GitHub 拉取 verify_token.py 并执行：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-login/scripts/verify_token.py | python3
+curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianbiyou-login/scripts/verify_token.py | python3
 ```
 
 - 若输出包含 `VERIFY_SUCCESS`，告知用户登录用户名和所属组织
