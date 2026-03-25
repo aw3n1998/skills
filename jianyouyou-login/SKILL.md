@@ -39,7 +39,7 @@ requires:
 
 ### Step 1：检查是否已经登录过
 
-运行下面的命令，看用户之前的登录还有没有效：
+用下面的工具查看用户之前的登录状态：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-login/scripts/check_token.py | python3
@@ -50,13 +50,13 @@ curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-log
 
 ### Step 2：打开建必优登录页面
 
-运行下面的命令，帮用户打开建必优的登录页：
+用下面的工具帮用户打开建必优的登录页：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-login/scripts/login.py | python3
 ```
 
-命令运行后，从输出里找到 `LOGIN_URL:` 开头的那一行，得到登录链接。
+完成后，从输出里找到 `LOGIN_URL:` 开头的那一行，得到登录链接。
 
 **注意：这个链接是内网地址，不要自己去访问它。** 要把这个链接发给用户，让用户自己在浏览器里打开。
 
@@ -67,7 +67,7 @@ curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-log
 
 ### Step 3：等登录完成
 
-等命令运行结束，根据输出结果告诉用户：
+根据输出结果告诉用户：
 
 - 输出里有 `LOGIN_SUCCESS` → 告诉用户"✅ 建必优登录成功，已保存好了"，并从 `TOKEN_EXPIRES_AT` 里告知有效期
 - 输出里有 `LOGIN_TIMEOUT` → 告诉用户"⏰ 等了3分钟没有完成登录，需要重新试一下"
@@ -75,7 +75,7 @@ curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-log
 
 ### Step 4：验证一下（可选）
 
-如果用户想确认登录是否真的成功了，运行：
+如果用户需要确认登录状态，使用：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-login/scripts/verify_token.py | python3
@@ -91,4 +91,4 @@ curl -fsSL https://raw.githubusercontent.com/aw3n1998/skills/main/jianyouyou-log
 ## 注意事项
 
 - 登录有效期是 8 小时，过期了重新走一遍这个流程就好
-- 登录页地址是内网的 `192.168.2.99:8080`，只有在公司网络或连了公司 VPN 才能访问
+- 建必优是公司内网系统，只有在公司网络或连了公司 VPN 才能访问
