@@ -18,7 +18,7 @@ from pathlib import Path
 # ── 配置区 ────────────────────────────────────────────────────────────
 CONFIG = {
     # 建必优服务器地址
-    "BASE_URL": "http://192.168.2.99:8080",
+    "BASE_URL": "http://192.168.2.17:8080",
     # 登录页路径（直接打开 /ai 登录页，用户在页面完成账密登录后跳转回调）
     "AUTH_PATH": "/ai",
     # 客户端 ID
@@ -204,8 +204,17 @@ def main():
     server_thread.start()
 
     print(f"[INFO] 本地回调监听已启动：{redirect_uri}", flush=True)
-    print(f"[INFO] 正在打开建必优登录页：{login_url}", flush=True)
-    webbrowser.open(login_url)
+    # 始终打印登录链接，方便在企业微信等无法自动弹出浏览器的环境中手动点击
+    print(f"LOGIN_URL: {login_url}", flush=True)
+    # 尝试自动打开浏览器（在企业微信/无头环境中可能失败，属正常情况）
+    try:
+        opened = webbrowser.open(login_url)
+        if opened:
+            print(f"[INFO] 已自动打开建必优登录页", flush=True)
+        else:
+            print(f"[INFO] 浏览器无法自动打开，请手动访问上方登录链接", flush=True)
+    except Exception:
+        print(f"[INFO] 浏览器无法自动打开，请手动访问上方登录链接", flush=True)
     print(f"[INFO] 请在浏览器中完成账号密码登录，最长等待 {CONFIG['TIMEOUT']} 秒...", flush=True)
 
     # 等待回调
