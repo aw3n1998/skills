@@ -11,7 +11,7 @@ import urllib.error
 from pathlib import Path
 
 CREDENTIALS_FILE = Path.home() / ".openclaw" / "workspace" / ".jianyouyou_credentials.json"
-BASE_URL = os.getenv("JYY_BASE_URL", "https://your-jianyouyou-server.com")
+BASE_URL = "http://192.168.2.17:8080"
 
 # 用于验证的轻量接口（返回当前用户信息）
 VERIFY_ENDPOINT = f"{BASE_URL}/api/user/current"
@@ -70,8 +70,8 @@ def main():
             print(f"VERIFY_FAILED: HTTP {e.code} - {e.reason}")
         sys.exit(1)
     except urllib.error.URLError as e:
-        print(f"VERIFY_FAILED: 无法连接建必优服务器 - {e.reason}")
-        print(f"请检查 JYY_BASE_URL 环境变量是否正确配置：{BASE_URL}")
+        print(f"VERIFY_FAILED: 无法连接建必优服务器 ({BASE_URL}) - {e.reason}")
+        print(f"[HINT] 请确认电脑与 192.168.2.17 在同一局域网，且服务已启动")
         sys.exit(1)
 
 

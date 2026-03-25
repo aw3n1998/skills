@@ -15,17 +15,17 @@ from urllib.parse import urlparse, parse_qs
 from datetime import datetime, timedelta
 from pathlib import Path
 
-# ── 配置区（按实际建必优部署地址修改）──────────────────────────────
+# ── 配置区 ────────────────────────────────────────────────────────────
 CONFIG = {
-    # 建必优服务器基础地址
-    "BASE_URL": os.getenv("JYY_BASE_URL", "https://your-jianyouyou-server.com"),
-    # OAuth 授权入口（建必优后端提供的登录页）
-    "AUTH_PATH": "/oauth/authorize",
-    # 客户端 ID（建必优后台注册的 client_id）
-    "CLIENT_ID": os.getenv("JYY_CLIENT_ID", "qclaw-agent"),
-    # Token 保存路径
+    # 建必优服务器地址
+    "BASE_URL": "http://192.168.2.99:8080",
+    # 登录页路径（直接打开 /ai 登录页，用户在页面完成账密登录后跳转回调）
+    "AUTH_PATH": "/ai",
+    # 客户端 ID
+    "CLIENT_ID": "qclaw-agent",
+    # Token 保存路径（Windows 路径兼容）
     "CREDENTIALS_FILE": Path.home() / ".openclaw" / "workspace" / ".jianyouyou_credentials.json",
-    # 本地回调端口（优先使用，被占用则自增）
+    # 本地回调端口
     "CALLBACK_PORT_START": 19877,
     # 等待用户登录超时（秒）
     "TIMEOUT": 180,
@@ -190,43 +190,41 @@ def main():
     port = find_free_port(CONFIG["CALLBACK_PORT_START"])
     redirect_uri = f"http://127.0.0.1:{port}/callback"
 
-    # 构建授权 URL
-    auth_url = (
+    # 建必优登录页地址，附带 callback_url 参数
+    # 建必优前端登录成功后，需要重定向到 callback_url?token=xxx
+    # 如果建必优前端不支持 callback_url 参数，可以直接打开登录页，
+    # 由用户登录后手动触发，或由前端 postMessage 发送 token
+    login_url = (
         f"{CONFIG['BASE_URL']}{CONFIG['AUTH_PATH']}"
-        f"?client_id={CONFIG['CLIENT_ID']}"
-        f"&redirect_uri={redirect_uri}"
-        f"&response_type=token"
-        f"&scope=openid"
+        f"?callback_url={redirect_uri}"
     )
 
-    # 启动回调服务（后台线程）
+    # 启动本地回调服务（后台线程）
     server_thread = threading.Thread(target=start_callback_server, args=(port,), daemon=True)
     server_thread.start()
 
-    # 打开浏览器
-    print(f"[INFO] 本地回调服务已启动：{redirect_uri}", flush=True)
-    print(f"[INFO] 正在打开建必优授权页...", flush=True)
-    webbrowser.open(auth_url)
+    print(f"[INFO] 本地回调监听已启动：{redirect_uri}", flush=True)
+    print(f"[INFO] 正在打开建必优登录页：{login_url}", flush=True)
+    webbrowser.open(login_url)
+    print(f"[INFO] 请在浏览器中完成账号密码登录，最长等待 {CONFIG['TIMEOUT']} 秒...", flush=True)
 
-    # 等待回调，最多 TIMEOUT 秒
+    # 等待回调
     deadline = time.time() + CONFIG["TIMEOUT"]
     while time.time() < deadline:
         if received_data:
             break
         time.sleep(0.5)
 
-    # 超时判断
     if not received_data:
-        print("LOGIN_TIMEOUT: 等待超时，用户未在规定时间内完成授权", flush=True)
+        print("LOGIN_TIMEOUT: 等待超时，用户未在规定时间内完成登录", flush=True)
+        print(f"[HINT] 如建必优前端不支持自动回调，请参考 references/config.md 中的前端改造说明", flush=True)
         sys.exit(1)
 
-    # 登录失败
     if not received_data.get("success"):
         error = received_data.get("error", "未知错误")
         print(f"LOGIN_FAILED: {error}", flush=True)
         sys.exit(1)
 
-    # 登录成功，保存 token
     expires_at = save_credentials(received_data)
     print(f"LOGIN_SUCCESS", flush=True)
     print(f"TOKEN_EXPIRES_AT: {expires_at}", flush=True)
